@@ -1,0 +1,28 @@
+{
+  "overview": "This PR establishes the Supabase/PostgreSQL data foundation for NutriTrack. It adds the full initial schema migration (profiles, foods, meals, meal_items, weight_logs, RLS policies) and initializes typed Supabase client helpers. No auth implementation, API routes, or seed data is included.",
+  "summary_json": {
+    "Tables created": "profiles, foods, meals, meal_items, weight_logs",
+    "Security": "Row Level Security (RLS) policies applied to all tables",
+    "Extensions": "uuid-ossp",
+    "Env vars required": "NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY",
+    "Client exports": "Singleton browser client (supabase) and server-side createServerSupabaseClient()",
+    "Out of scope": "Food seed data, auth implementation, API routes",
+    "Breaking changes": "None; greenfield schema"
+  },
+  "files_changed": [
+    {
+      "path": "src/lib/database.types.ts",
+      "summary": "Defines all TypeScript types and interfaces (Row, Insert, Update shapes) for every database table plus enums for Gender, ActivityLevel, Goal, and MealType."
+    },
+    {
+      "path": "src/lib/supabase.ts",
+      "summary": "Initializes and exports a typed singleton Supabase browser client and a server-side admin client factory, re-exporting all DB types for convenience."
+    },
+    {
+      "path": "supabase/migrations/20240101000000_initial_schema.sql",
+      "summary": "Initial Supabase migration that creates all tables, constraints, foreign keys, indexes, and RLS policies for the NutriTrack schema."
+    }
+  ],
+  "extras": "Verify by running the migration against a local Supabase instance (`supabase db reset`) and confirming all tables/RLS policies appear. Ensure the three env vars are added to .env.local and CI secrets before any dependent features land.",
+  "fallback_text": "PR #1 sets up the complete database layer for NutriTrack. The SQL migration creates profiles, foods, meals, meal_items, and weight_logs tables with CHECK constraints, foreign keys, and RLS policies, plus the uuid-ossp extension. src/lib/database.types.ts provides full TypeScript typings for all tables (Row/Insert/Update) and domain enums. src/lib/supabase.ts wires up a typed singleton browser client and a server-side admin client using three env vars (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY). Auth, API routes, and seed data are explicitly out of scope for this PR."
+}
