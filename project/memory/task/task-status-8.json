@@ -1,0 +1,12 @@
+{
+  "schema": "cofabric.task_status.v1",
+  "task_number": 8,
+  "title": "Progress Tracking and Weight Logging",
+  "status": "pending",
+  "priority": "medium",
+  "description": "",
+  "completion_summary": null,
+  "pr_url": null,
+  "pr_doc": null,
+  "updated_at": "2026-04-09T16:57:30.103Z"
+}
