@@ -1,0 +1,60 @@
+{
+  "overview": "Implements a complete Supabase-based authentication system for the NutriTrack Next.js app, covering signup, login, logout, password reset, and session management. Adds auth middleware for protected routes, a React context/hook layer for client components, and login/signup UI screens. Social OAuth and user profile data are explicitly out of scope.",
+  "summary_json": {
+    "Auth provider": "Supabase Auth via @supabase/supabase-js ^2.38.0 and @supabase/ssr ^0.1.0",
+    "Env vars required": "NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, OPENAI_API_KEY",
+    "Protected routes": "Next.js middleware in src/middleware.ts guards dashboard and other authenticated paths",
+    "Auth routes added": "/auth/login, /auth/signup",
+    "Client auth entry point": "src/hooks/useAuth.ts re-exports useAuth and AuthProvider from AuthContext",
+    "Out of scope": "Social OAuth providers, user profile data beyond auth",
+    "File cap note": "Files after index 11 were omitted from preview due to context limits"
+  },
+  "files_changed": [
+    {
+      "path": "package.json",
+      "summary": "Adds @supabase/ssr and @supabase/supabase-js as runtime dependencies alongside existing Next.js 14 and OpenAI packages."
+    },
+    {
+      "path": "src/lib/supabase.ts",
+      "summary": "Exports a singleton browser Supabase client and a createServerSupabaseClient factory that handles cookie-based session management for server components."
+    },
+    {
+      "path": "src/lib/database.types.ts",
+      "summary": "Defines TypeScript types for the Supabase database schema including profiles, enums for gender/activity/goal, and meal types used across the app."
+    },
+    {
+      "path": "src/lib/openai.ts",
+      "summary": "Initialises and exports a shared OpenAI client using OPENAI_API_KEY; unchanged in scope but present in this branch."
+    },
+    {
+      "path": "src/contexts/AuthContext.tsx",
+      "summary": "Implements AuthProvider with React context exposing user, session, loading state, and signIn/signUp/signOut/resetPassword methods backed by Supabase Auth."
+    },
+    {
+      "path": "src/hooks/useAuth.ts",
+      "summary": "Thin re-export barrel so consumers import from a stable hooks path rather than directly from the context file."
+    },
+    {
+      "path": "src/middleware.ts",
+      "summary": "Next.js edge middleware that creates a per-request Supabase client with cookie forwarding to validate sessions and redirect unauthenticated users away from protected routes."
+    },
+    {
+      "path": "src/app/auth/layout.tsx",
+      "summary": "Shared layout for all auth pages rendering the NutriTrack logo header and a centred card container."
+    },
+    {
+      "path": "src/app/auth/login/page.tsx",
+      "summary": "Login page server component that reads redirectTo and message search params and renders the LoginForm inside a Suspense boundary."
+    },
+    {
+      "path": "src/app/auth/login/_components/LoginForm.tsx",
+      "summary": "Client component form that calls signIn from useAuth, handles errors, and redirects to the dashboard or a custom redirectTo path on success."
+    },
+    {
+      "path": "src/app/auth/signup/page.tsx",
+      "summary": "Signup page server component that renders SignupForm inside a Suspense boundary and surfaces a message param for post-signup confirmation notices."
+    }
+  ],
+  "extras": "Verify: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local, run dev server, exercise signup → email confirmation → login → logout flow. Follow-up: files after index 11 were capped so additional files (e.g. SignupForm component, any API route handlers) were not reviewed — confirm those exist and are consistent. Risk: duplicate AuthUser export in supabase.ts (both re-export and local type alias) may cause a TS compile error; should be reconciled.",
+  "fallback_text": "This PR adds full Supabase Auth to the NutriTrack Next.js 14 app. New dependencies @supabase/supabase-js and @supabase/ssr are added to package.json. src/lib/supabase.ts provides both a browser singleton client and a cookie-aware server client. src/contexts/AuthContext.tsx and src/hooks/useAuth.ts expose signIn, signUp, signOut, and resetPassword to client components. src/middleware.ts protects routes at the edge by checking the Supabase session. Auth UI lives at /auth/login and /auth/signup with a shared layout. Required env vars: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, OPENAI_API_KEY. Social OAuth and profile data are out of scope. A potential duplicate AuthUser type export in supabase.ts warrants a quick review."
+}
