@@ -1,0 +1,55 @@
+{
+  "overview": "This PR introduces a food database and search feature for the nutrition app. It seeds 200+ common foods across major categories into Supabase, exposes search and category API routes, and adds UI components for displaying food results with macro breakdowns. External API integration and user-created foods are explicitly out of scope.",
+  "summary_json": {
+    "New API routes": "GET /api/foods/search (query: q, category, limit), GET /api/foods/categories",
+    "Seed count": "200+ foods across categories: Fruits, Vegetables, Meat & Poultry, Fish & Seafood, Dairy & Eggs, Grains & Cereals, Legumes & Beans, Nuts & Seeds, Snacks & Sweets, Beverages, Condiments & Sauces",
+    "Seed script": "Run via src/scripts/seed-foods.ts; uses SUPABASE_SERVICE_ROLE_KEY; idempotent (skips if foods already exist); batch size 50",
+    "Required env vars": "NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY",
+    "Search behavior": "Case-insensitive partial match (ilike) on name, optional category filter, JS-side relevance ranking, max 50 results",
+    "Breaking changes": "None noted; database.types.ts extended (preview truncated, verify foods table typedef added)"
+  },
+  "files_changed": [
+    {
+      "path": "src/lib/supabase.ts",
+      "summary": "Exports singleton anon client, admin service-role client, and server-side factory; typed against Database."
+    },
+    {
+      "path": "src/lib/openai.ts",
+      "summary": "Minimal OpenAI client singleton using OPENAI_API_KEY env var."
+    },
+    {
+      "path": "src/lib/database.types.ts",
+      "summary": "Shared TypeScript DB schema types; likely extended with a foods table Row/Insert definition (preview truncated)."
+    },
+    {
+      "path": "src/types/food.ts",
+      "summary": "Defines Food, FoodSearchResult, FoodSearchResponse interfaces and a calculateMacrosForServing utility that scales per-100g macros to actual serving size."
+    },
+    {
+      "path": "src/data/foods-seed.ts",
+      "summary": "Static array of 200+ SeedFood objects organized by category, used by the seed script."
+    },
+    {
+      "path": "src/scripts/seed-foods.ts",
+      "summary": "Node script that upserts SEED_FOODS into Supabase in batches of 50 using the admin client; idempotent."
+    },
+    {
+      "path": "src/app/api/foods/search/route.ts",
+      "summary": "Next.js GET route that performs case-insensitive partial name search with optional category filter and relevance-sorts results client-side."
+    },
+    {
+      "path": "src/app/api/foods/categories/route.ts",
+      "summary": "Next.js GET route that returns a sorted deduplicated list of all food categories from the foods table."
+    },
+    {
+      "path": "src/components/food/MacroBar.tsx",
+      "summary": "Client component rendering a proportional color-coded macro bar (protein/carbs/fat) with calorie label."
+    },
+    {
+      "path": "src/components/food/FoodCard.tsx",
+      "summary": "Client component displaying a food item with category color badge, macro bar, and optional select callback."
+    }
+  ],
+  "extras": "To verify: run `ts-node src/scripts/seed-foods.ts` (requires .env.local), then hit GET /api/foods/search?q=apple and GET /api/foods/categories. Confirm database.types.ts includes the foods table typedef since the preview was truncated. Follow-up: add a Postgres GIN/trigram index on foods.name for faster ilike queries at scale.",
+  "fallback_text": "PR #3 adds a food database and search system. A 200+ item seed file (foods-seed.ts) covers 11 food categories with per-100g macros and serving info. A seed script upserts them into Supabase using the service role key in idempotent batches of 50. Two API routes are added: /api/foods/search (partial name match, optional category filter, max 50 results with JS relevance sort) and /api/foods/categories (deduplicated sorted list). UI components include FoodCard (food display with category badge and macro details) and MacroBar (proportional protein/carbs/fat bar). Shared types in src/types/food.ts include the Food interface and a calculateMacrosForServing helper. Required env vars: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY. No breaking changes; external food API integration and custom user foods are out of scope."
+}
