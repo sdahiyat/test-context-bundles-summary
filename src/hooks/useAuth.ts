@@ -1,1 +1,2 @@
-export { useAuth, AuthProvider } from '@/contexts/AuthContext'
+// Convenience re-export for consumers who prefer importing from hooks/
+export { useAuth } from '@/contexts/AuthContext';

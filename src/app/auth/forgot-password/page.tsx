@@ -1,19 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { signIn } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { resetPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,19 +18,49 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { error: signInError } = await signIn(email, password);
-      if (signInError) {
-        setError(signInError.message);
-        return;
-      }
-      const redirectTo = searchParams.get('redirectTo') || '/dashboard';
-      router.push(redirectTo);
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      await resetPassword(email);
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to send reset email. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="w-full max-w-md mx-auto p-8 bg-white rounded-xl shadow-lg text-center">
+        <div className="flex justify-center mb-4">
+          <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
+            <svg
+              className="w-8 h-8 text-primary-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Email sent!</h2>
+        <p className="text-gray-500 text-sm mb-6">
+          Password reset email sent! Check your inbox and follow the link to
+          reset your password.
+        </p>
+        <Link
+          href="/auth/login"
+          className="inline-block w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 px-4 rounded-lg transition text-sm text-center"
+        >
+          Back to Sign In
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md mx-auto p-8 bg-white rounded-xl shadow-lg">
@@ -44,9 +71,10 @@ export default function LoginPage() {
             <span className="text-white text-xl font-bold">N</span>
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Reset Password</h1>
         <p className="text-gray-500 mt-1 text-sm">
-          Sign in to continue tracking your nutrition
+          Enter your email address and we&apos;ll send you a link to reset your
+          password.
         </p>
       </div>
 
@@ -71,34 +99,6 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Password */}
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <Link
-              href="/auth/forgot-password"
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-            >
-              Forgot password?
-            </Link>
-          </div>
-          <input
-            id="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-          />
-        </div>
-
         {/* Error */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
@@ -115,22 +115,22 @@ export default function LoginPage() {
           {loading ? (
             <span className="flex items-center justify-center gap-2">
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Signing in...
+              Sending...
             </span>
           ) : (
-            'Sign In'
+            'Send Reset Link'
           )}
         </button>
       </form>
 
       {/* Footer */}
       <p className="text-center text-sm text-gray-500 mt-6">
-        Don&apos;t have an account?{' '}
+        Remember your password?{' '}
         <Link
-          href="/auth/signup"
+          href="/auth/login"
           className="text-primary-600 hover:text-primary-700 font-medium"
         >
-          Sign up
+          Sign in
         </Link>
       </p>
     </div>

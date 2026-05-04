@@ -1,23 +1,9 @@
-import Link from 'next/link'
+import { ReactNode } from 'react';
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="flex justify-center pt-8 pb-4">
-        <Link
-          href="/"
-          className="text-2xl font-bold text-primary-600 hover:text-primary-700 transition-colors"
-        >
-          NutriTrack
-        </Link>
-      </div>
-      <div className="flex-1 flex items-start justify-center px-4 py-8">
-        <div className="w-full max-w-md">{children}</div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center px-4">
+      {children}
     </div>
-  )
+  );
 }
