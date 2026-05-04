@@ -1,0 +1,61 @@
+{
+  "overview": "Implements a full user authentication system backed by Supabase Auth, covering signup, login, logout, and password reset flows. Adds Next.js middleware for server-side route protection, a React AuthContext/hook for client state, a ProtectedRoute wrapper, and dedicated UI pages for each auth screen. Social OAuth and user profile data are explicitly out of scope.",
+  "summary_json": {
+    "Auth provider": "Supabase Auth (email/password only; no social OAuth)",
+    "Protected paths (middleware)": "/dashboard, /log, /profile, /progress, /settings, /insights",
+    "Auth paths": "/auth/login, /auth/signup, /auth/forgot-password",
+    "Required env vars": "NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY",
+    "Session detection (middleware)": "Cookie name pattern: sb-<project-ref>-auth-token",
+    "Client singleton": "src/lib/supabase.ts exports a single browser client",
+    "Server clients": "createServerSupabaseClient (anon key, no session persistence), createAdminSupabaseClient (service role — server-only)",
+    "Breaking changes": "None; new files only"
+  },
+  "files_changed": [
+    {
+      "path": "src/lib/supabase.ts",
+      "summary": "Creates and exports the singleton Supabase browser client using public env vars."
+    },
+    {
+      "path": "src/lib/supabase-server.ts",
+      "summary": "Exports server-side Supabase client factories: one using the anon key and one admin client using the service role key."
+    },
+    {
+      "path": "src/contexts/AuthContext.tsx",
+      "summary": "Provides AuthContext and AuthProvider with user/session state, loading flag, and signUp/signIn/signOut/resetPassword methods."
+    },
+    {
+      "path": "src/hooks/useAuth.ts",
+      "summary": "Re-exports useAuth from AuthContext as a convenience hook entry point."
+    },
+    {
+      "path": "src/components/auth/ProtectedRoute.tsx",
+      "summary": "Client component that redirects unauthenticated users to /auth/login and shows a spinner while auth state loads."
+    },
+    {
+      "path": "src/middleware.ts",
+      "summary": "Next.js middleware that gates protected paths behind a Supabase auth cookie check and redirects authenticated users away from auth pages."
+    },
+    {
+      "path": "src/app/auth/layout.tsx",
+      "summary": "Centered gradient layout wrapper shared by all auth pages."
+    },
+    {
+      "path": "src/app/auth/login/page.tsx",
+      "summary": "Login page with email/password form, error display, and post-login redirect honoring a redirectTo query param."
+    },
+    {
+      "path": "src/app/auth/signup/page.tsx",
+      "summary": "Signup page with email/password/confirm-password form, client-side validation, and success state prompting email verification."
+    },
+    {
+      "path": "src/app/auth/forgot-password/page.tsx",
+      "summary": "Forgot-password page that triggers Supabase password reset email and shows a confirmation state on success."
+    },
+    {
+      "path": "src/app/dashboard/page.tsx",
+      "summary": "Stub dashboard page wrapped in ProtectedRoute, displaying user email and a sign-out button."
+    }
+  ],
+  "extras": "Verify: set the three env vars, visit /dashboard unauthenticated (should redirect to /auth/login?redirectTo=/dashboard), sign up, confirm email, log in, and confirm redirect back to /dashboard. Follow-up risks: middleware cookie detection is heuristic (regex on cookie name) — may need updating if Supabase changes its cookie naming scheme; admin client must never be imported in client bundles.",
+  "fallback_text": "PR #4 adds a complete Supabase Auth-based authentication system to the Next.js app. New files include a browser Supabase singleton (src/lib/supabase.ts), server-side client factories including an admin client (src/lib/supabase-server.ts), an AuthContext provider with signUp/signIn/signOut/resetPassword (src/contexts/AuthContext.tsx), a useAuth convenience hook (src/hooks/useAuth.ts), a ProtectedRoute component that redirects on missing session (src/components/auth/ProtectedRoute.tsx), and Next.js middleware (src/middleware.ts) that guards /dashboard, /log, /profile, /progress, /settings, and /insights via a Supabase auth cookie check. Auth UI pages were added for login, signup, and forgot-password under src/app/auth/, plus a stub dashboard. Three env vars are required: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY. No breaking changes; social OAuth and profile data are out of scope."
+}
