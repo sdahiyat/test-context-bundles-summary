@@ -1,0 +1,60 @@
+{
+  "overview": "Implements a complete Supabase Auth system for the NutriTrack Next.js app, covering signup, login, logout, password reset, and session management. Adds auth middleware, a React AuthContext/hook, and protected-route wrappers. Builds all auth UI screens within a shared auth layout.",
+  "summary_json": {
+    "Auth provider": "Supabase Auth via @supabase/supabase-js ^2.39.0 and @supabase/ssr ^0.1.0",
+    "New routes": "/(auth)/login, /(auth)/signup, /(auth)/forgot-password, /auth/callback, /auth/reset-password",
+    "New env keys required": "NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY (inferred from Supabase setup)",
+    "Auth callback route": "GET /auth/callback — exchanges code for session, handles recovery redirect",
+    "Protected routes": "ProtectedRoute component wraps client pages; redirects unauthenticated users to /login?redirectTo=<path>",
+    "Out of scope": "Social OAuth providers, user profile data beyond auth",
+    "Breaking changes": "Root layout now requires AuthProvider; all children wrapped in auth context"
+  },
+  "files_changed": [
+    {
+      "path": "project/package.json",
+      "summary": "Adds @supabase/ssr and @supabase/supabase-js dependencies required for Supabase Auth."
+    },
+    {
+      "path": "project/src/app/(auth)/forgot-password/page.tsx",
+      "summary": "Forgot-password UI with email validation, 60-second resend cooldown, and email-enumeration-safe submission."
+    },
+    {
+      "path": "project/src/app/(auth)/layout.tsx",
+      "summary": "Shared centered card layout wrapping all auth screens with a NutriTrack brand link."
+    },
+    {
+      "path": "project/src/app/(auth)/login/page.tsx",
+      "summary": "Login page that calls signIn from AuthContext and redirects to ?redirectTo param or /dashboard on success."
+    },
+    {
+      "path": "project/src/app/(auth)/signup/page.tsx",
+      "summary": "Signup page with email/password/confirm-password validation (min 8 chars) and post-submit confirmation state."
+    },
+    {
+      "path": "project/src/app/auth/callback/route.ts",
+      "summary": "Server route that exchanges Supabase auth code for a session and handles password-recovery redirects."
+    },
+    {
+      "path": "project/src/app/auth/reset-password/page.tsx",
+      "summary": "Reset-password page that calls supabase.auth.updateUser and redirects to /dashboard after 2 seconds on success."
+    },
+    {
+      "path": "project/src/app/layout.tsx",
+      "summary": "Wraps the entire app in AuthProvider so auth state is globally available."
+    },
+    {
+      "path": "project/src/components/auth/LogoutButton.tsx",
+      "summary": "Reusable client button component that calls signOut from AuthContext with loading state."
+    },
+    {
+      "path": "project/src/components/auth/ProtectedRoute.tsx",
+      "summary": "Client wrapper that redirects unauthenticated users to login and shows a spinner while auth state is loading."
+    },
+    {
+      "path": "project/src/contexts/AuthContext.tsx",
+      "summary": "Core AuthContext providing user, session, loading state, and signIn/signUp/signOut/resetPassword methods via Supabase browser client."
+    }
+  ],
+  "extras": "Verify: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local before running. Confirm Supabase project has email auth enabled and callback URL registered as <origin>/auth/callback. Follow-up: middleware-level route protection (currently only client-side via ProtectedRoute) and social OAuth were explicitly deferred.",
+  "fallback_text": "This PR ships the full user authentication system for NutriTrack using Supabase Auth. It adds @supabase/supabase-js and @supabase/ssr to package.json, creates an AuthContext that exposes user/session state plus signIn, signUp, signOut, and resetPassword helpers, and wraps the root layout in AuthProvider. Auth UI screens (login, signup, forgot-password) live under the (auth) route group with a shared centered-card layout. A server-side GET /auth/callback route handles Supabase code exchange and password-recovery redirects. A ProtectedRoute client component enforces auth on protected pages by redirecting to /login with a redirectTo param. A LogoutButton component is also provided. Social OAuth and user profile data are out of scope. Requires NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY env vars and a Supabase project with email auth and the callback URL configured."
+}
